@@ -1,3 +1,18 @@
+PyGHO installation
+
+'''
+git clone https://github.com/GraphPKU/PygHO.git
+cd PygHO
+git checkout spbmm
+pip install -e .
+'''
+
+How to use a new score estimator?
+1. write a score estimator like `models/MyScoreNetwork.py`. You can change key word "PPGN" in this file to other models like "NGNN", "2IGN", "GNNAK", "SSWL".
+2. change function `load_model` in `loader.py`, add a branch here.
+3. change config file. Use your new model name as the `model.adj`.
+
+
 # Score-based Generative Modeling of Graphs via the System of Stochastic Differential Equations
 
 Official Code Repository for the paper [Score-based Generative Modeling of Graphs via the System of Stochastic Differential Equations](https://arxiv.org/abs/2202.02514) (ICML 2022).

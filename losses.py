@@ -13,7 +13,7 @@ def get_score_fn(sde, model, train=True, continuous=True):
     def score_fn(x, adj, flags, t):
       # Scale neural network output by standard deviation and flip sign
       if continuous:
-        score = model_fn(x, adj, flags)
+        score = model_fn(x, adj, flags, t)
         std = sde.marginal_prob(torch.zeros_like(adj), t)[1]
       else:
         raise NotImplementedError(f"Discrete not supported")
@@ -23,7 +23,7 @@ def get_score_fn(sde, model, train=True, continuous=True):
   elif isinstance(sde, VESDE):
     def score_fn(x, adj, flags, t):
       if continuous:
-        score = model_fn(x, adj, flags)
+        score = model_fn(x, adj, flags, t)
       else:  
         raise NotImplementedError(f"Discrete not supported")
       return score

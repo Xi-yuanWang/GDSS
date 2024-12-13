@@ -23,7 +23,7 @@ class BaselineNetworkLayer(torch.nn.Module):
         self.multi_channel = MLP(2, input_dim*conv_output_dim, self.hidden_dim, conv_output_dim, 
                                     use_bn=False, activate_func=F.elu)
         
-    def forward(self, x, adj, flags):
+    def forward(self, x, adj, flags, t):
     
         x_list = []
         for _ in range(len(self.convs)):
@@ -76,7 +76,7 @@ class BaselineNetwork(torch.nn.Module):
         self.mask = torch.ones([self.max_node_num, self.max_node_num]) - torch.eye(self.max_node_num)
         self.mask.unsqueeze_(0)   
 
-    def forward(self, x, adj, flags=None):
+    def forward(self, x, adj, flags=None, t=None):
 
         adjc = pow_tensor(adj, self.c_init)
 
@@ -128,7 +128,7 @@ class ScoreNetworkA(BaselineNetwork):
         self.mask = torch.ones([self.max_node_num, self.max_node_num]) - torch.eye(self.max_node_num)
         self.mask.unsqueeze_(0)  
 
-    def forward(self, x, adj, flags):
+    def forward(self, x, adj, flags, t):
 
         adjc = pow_tensor(adj, self.c_init)
 

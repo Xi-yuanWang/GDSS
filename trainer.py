@@ -65,6 +65,8 @@ class Trainer(object):
                 loss_x.backward()
                 loss_adj.backward()
 
+                print(loss_adj.item(), flush=True)
+
                 torch.nn.utils.clip_grad_norm_(self.model_x.parameters(), self.config.train.grad_norm)
                 torch.nn.utils.clip_grad_norm_(self.model_adj.parameters(), self.config.train.grad_norm)
 

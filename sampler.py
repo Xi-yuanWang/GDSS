@@ -11,7 +11,7 @@ from utils.graph_utils import adjs_to_graphs, init_flags, quantize, quantize_mol
 from utils.plot import save_graph_list, plot_graphs_list
 from evaluation.stats import eval_graph_list
 from utils.mol_utils import gen_mol, mols_to_smiles, load_smiles, canonicalize_smiles, mols_to_nx
-from moses.metrics.metrics import get_all_metrics
+# from moses.metrics.metrics import get_all_metrics
 
 
 # -------- Sampler for generic graph generation tasks --------
@@ -149,12 +149,12 @@ class Sampler_mol(object):
                 f.write(f'{smiles}\n')
 
         # -------- Evaluation --------
-        scores = get_all_metrics(gen=gen_smiles, k=len(gen_smiles), device=self.device[0], n_jobs=8, test=test_smiles, train=train_smiles)
+        # scores = get_all_metrics(gen=gen_smiles, k=len(gen_smiles), device=self.device[0], n_jobs=8, test=test_smiles, train=train_smiles)
         scores_nspdk = eval_graph_list(self.test_graph_list, mols_to_nx(gen_mols), methods=['nspdk'])['nspdk']
 
         logger.log(f'Number of molecules: {num_mols}')
         logger.log(f'validity w/o correction: {num_mols_wo_correction / num_mols}')
-        for metric in ['valid', f'unique@{len(gen_smiles)}', 'FCD/Test', 'Novelty']:
-            logger.log(f'{metric}: {scores[metric]}')
+        #for metric in ['valid', f'unique@{len(gen_smiles)}', 'FCD/Test', 'Novelty']:
+        #    logger.log(f'{metric}: {scores[metric]}')
         logger.log(f'NSPDK MMD: {scores_nspdk}')
         logger.log('='*100)

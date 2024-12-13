@@ -21,7 +21,7 @@ sde:
 
 model:
   x: ScoreNetworkX
-  adj: ScoreNetworkA
+  adj: MyScoreNetwork
   conv: GCN
   num_heads: 4
   depth: 3
@@ -30,7 +30,7 @@ model:
   num_layers: 5
   num_linears: 2
   c_init: 2
-  c_hid: 8
+  c_hid: 32
   c_final: 4
   
 train:
