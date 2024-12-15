@@ -2,7 +2,6 @@ import torch
 import random
 import numpy as np
 
-from models.MyScoreNetwork import MyScoreNetwork
 from models.ScoreNetwork_A import ScoreNetworkA
 from models.ScoreNetwork_X import ScoreNetworkX, ScoreNetworkX_GMH
 from sde import VPSDE, VESDE, subVPSDE
@@ -44,8 +43,6 @@ def load_model(params):
         model = ScoreNetworkX_GMH(**params_)
     elif model_type == 'ScoreNetworkA':
         model = ScoreNetworkA(**params_)
-    elif model_type == 'MyScoreNetwork':
-        model = MyScoreNetwork(**params_)
     else:
         raise ValueError(f"Model Name <{model_type}> is Unknown")
     return model

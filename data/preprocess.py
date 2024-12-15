@@ -9,7 +9,7 @@ from utils.data_frame_parser import DataFrameParser
 from utils.numpytupledataset import NumpyTupleDataset
 from utils.smile_to_graph import GGNNPreprocessor
 
-
+NCYCLE = 6
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset', type=str, default='ZINC250k', choices=['ZINC250k', 'QM9'])
 args = parser.parse_args()
@@ -24,7 +24,7 @@ if data_name == 'ZINC250k':
     label_idx = 1
 elif data_name == 'QM9':
     max_atoms = 9
-    path = 'data/qm9.csv'
+    path = 'data/pre_qm9.csv'
     smiles_col = 'SMILES1'
     label_idx = 2
 else:

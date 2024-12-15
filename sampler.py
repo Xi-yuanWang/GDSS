@@ -3,6 +3,7 @@ import time
 import pickle
 import math
 import torch
+import networkx as nx
 
 from utils.logger import Logger, set_log, start_log, train_log, sample_log, check_log
 from utils.loader import load_ckpt, load_data, load_seed, load_device, load_model_from_ckpt, \
@@ -11,7 +12,8 @@ from utils.graph_utils import adjs_to_graphs, init_flags, quantize, quantize_mol
 from utils.plot import save_graph_list, plot_graphs_list
 from evaluation.stats import eval_graph_list
 from utils.mol_utils import gen_mol, mols_to_smiles, load_smiles, canonicalize_smiles, mols_to_nx
-# from moses.metrics.metrics import get_all_metrics
+from moses.metrics.metrics import get_all_metrics
+NCYCLE = 6
 
 
 # -------- Sampler for generic graph generation tasks --------
@@ -72,6 +74,13 @@ class Sampler(object):
             gen_graph_list.extend(adjs_to_graphs(samples_int, True))
 
         gen_graph_list = gen_graph_list[:len(self.test_graph_list)]
+        print(NCYCLE,"-cycle count")
+        for i, graph in enumerate(gen_graph_list):
+            graph = graph.to_directed()
+            simple_cycles_generator = nx.simple_cycles(graph)
+            n_cycles = [cycle for cycle in simple_cycles_generator if len(cycle) == NCYCLE]
+            cycle_count = len(n_cycles)
+            print(cycle_count)
 
         # -------- Evaluation --------
         methods, kernels = load_eval_settings(self.config.data.data)
@@ -139,6 +148,17 @@ class Sampler_mol(object):
 
         gen_mols, num_mols_wo_correction = gen_mol(x, adj, self.configt.data.data)
         num_mols = len(gen_mols)
+        print(NCYCLE,"-cycle count")
+        gen_graph_list = mols_to_nx(gen_mols)
+        cnt=0
+        for i, graph in enumerate(gen_graph_list):
+            graph = graph.to_directed()
+            simple_cycles_generator = nx.simple_cycles(graph)
+            n_cycles = [cycle for cycle in simple_cycles_generator if len(cycle) == NCYCLE]
+            cycle_count = len(n_cycles)
+            if(cycle_count == 2):
+                cnt+=1
+        print(cnt,len(gen_graph_list))
 
         gen_smiles = mols_to_smiles(gen_mols)
         gen_smiles = [smi for smi in gen_smiles if len(smi)]
@@ -149,12 +169,12 @@ class Sampler_mol(object):
                 f.write(f'{smiles}\n')
 
         # -------- Evaluation --------
-        # scores = get_all_metrics(gen=gen_smiles, k=len(gen_smiles), device=self.device[0], n_jobs=8, test=test_smiles, train=train_smiles)
+        scores = get_all_metrics(gen=gen_smiles, k=len(gen_smiles), device=self.device[0], n_jobs=8, test=test_smiles, train=train_smiles)
         scores_nspdk = eval_graph_list(self.test_graph_list, mols_to_nx(gen_mols), methods=['nspdk'])['nspdk']
 
         logger.log(f'Number of molecules: {num_mols}')
         logger.log(f'validity w/o correction: {num_mols_wo_correction / num_mols}')
-        #for metric in ['valid', f'unique@{len(gen_smiles)}', 'FCD/Test', 'Novelty']:
-        #    logger.log(f'{metric}: {scores[metric]}')
+        for metric in ['valid', f'unique@{len(gen_smiles)}', 'FCD/Test', 'Novelty']:
+            logger.log(f'{metric}: {scores[metric]}')
         logger.log(f'NSPDK MMD: {scores_nspdk}')
         logger.log('='*100)

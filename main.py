@@ -18,7 +18,7 @@ def main(work_type_args):
         ckpt = trainer.train(ts)
         if 'sample' in config.keys():
             config.ckpt = ckpt
-            sampler = Sampler(config) 
+            sampler = Sampler_mol(config) 
             sampler.sample()
 
     # -------- Generation --------

@@ -6,10 +6,44 @@ import networkx as nx
 import numpy as np
 import scipy.sparse as sp
 import argparse
+NCYCLE = 3
+SUBGRAPH_NUM = 1
 
-
-# -------- Generate community graphs --------
 def n_community(num_communities, max_nodes, p_inter=0.05):
+    # -------- From Niu et al. (2020) --------
+    assert num_communities > 1
+
+    if SUBGRAPH_NUM == 1:
+            one_community_size = max_nodes // num_communities
+            c_sizes = [one_community_size] * num_communities
+            total_nodes = one_community_size * num_communities
+            p_make_a_bridge = p_inter * 2 / ((num_communities - 1) * one_community_size)               
+            graphs = [nx.gnp_random_graph(c_sizes[i], 0.7, seed=i) for i in range(len(c_sizes))]
+            G = nx.disjoint_union_all(graphs)
+            communities = list(G.subgraph(c) for c in nx.connected_components(G))
+            add_edge = 0
+            for i in range(len(communities)):
+                subG1 = communities[i]
+                nodes1 = list(subG1.nodes())
+                for j in range(i + 1, len(communities)):  # loop for C_M^2 times
+                    subG2 = communities[j]
+                    nodes2 = list(subG2.nodes())
+                    has_inter_edge = False
+                    for n1 in nodes1:  # loop for N times
+                        for n2 in nodes2:  # loop for N times
+                            if np.random.rand() < p_make_a_bridge and not G.has_edge(n1, n2) and G.number_of_edges() <45:
+                                G.add_edge(n1, n2)
+                                has_inter_edge = True
+                                add_edge += 1
+                    if not has_inter_edge:
+                        G.add_edge(nodes1[0], nodes2[0])
+                        add_edge += 1
+            
+            print(G.number_of_nodes(), G.number_of_edges())           
+            return G
+ 
+# -------- Generate community graphs --------
+def nn_community(num_communities, max_nodes, p_inter=0.05):
     # -------- From Niu et al. (2020) --------
     assert num_communities > 1
     
@@ -44,6 +78,7 @@ def n_community(num_communities, max_nodes, p_inter=0.05):
             'add edges: ', add_edge)
     print(G.number_of_edges())
     return G
+
 
 
 NAME_TO_NX_GENERATOR = {
@@ -94,6 +129,7 @@ def gen_graph_list(graph_type='grid', possible_params_dict=None, corrupt_func=No
                                      possible_params_dict=possible_params_dict,
                                      corrupt_func=corrupt_func)
     graph_list = []
+    cylce_list = []
     i = 0
     max_N = 0
     while i < length:
@@ -106,8 +142,19 @@ def gen_graph_list(graph_type='grid', possible_params_dict=None, corrupt_func=No
         max_N = max(max_N, graph.number_of_nodes())
         if graph.number_of_nodes() <= 1:
             continue
+
+        graph = graph.to_directed()
+        simple_cycles_generator = nx.simple_cycles(graph)
+        n_cycles = [cycle for cycle in simple_cycles_generator if len(cycle) == NCYCLE]
+        cycle_count = len(n_cycles)
+        print(f"Number of {NCYCLE}-cycles:", cycle_count)
+        if cycle_count  <20 or cycle_count > 30:
+            continue
+        graph = graph.to_undirected()
+        cylce_list.append(cycle_count)
         graph_list.append(graph)
         i += 1
+    print(f"Number of {NCYCLE}-cycles:", cylce_list)
     if save_dir is not None:
         if not os.path.isdir(save_dir):
             os.makedirs(save_dir)
@@ -269,7 +316,7 @@ def generate_dataset(data_dir='data', dataset='community_small'):
         print(max([g.number_of_nodes() for g in graphs]))
 
     else:
-        raise NotImplementedError(f'Dataset {datset} not supproted.')
+        raise NotImplementedError(f'Dataset {dataset} not supproted.')
 
 
 if __name__ == "__main__":

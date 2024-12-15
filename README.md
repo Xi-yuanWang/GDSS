@@ -1,18 +1,13 @@
-PyGHO installation
+<<<<<<< HEAD
+1. data process (./scripts/train.sh)
+   need to change NCYCLE in qm9_preprocess.py preprocess.py
+   store the graph with only one n-cycle in pre_qm9.csv
+2. train model (CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --type train --config qm9 --seed 10)
+   change the NCYCLE in sample.py, after generation it will count the number of n-cycle and output
+ 
 
-'''
-git clone https://github.com/GraphPKU/PygHO.git
-cd PygHO
-git checkout spbmm
-pip install -e .
-'''
-
-How to use a new score estimator?
-1. write a score estimator like `models/MyScoreNetwork.py`. You can change key word "PPGN" in this file to other models like "NGNN", "2IGN", "GNNAK", "SSWL".
-2. change function `load_model` in `loader.py`, add a branch here.
-3. change config file. Use your new model name as the `model.adj`.
-
-
+=======
+>>>>>>> parent of a222283... new_scorer
 # Score-based Generative Modeling of Graphs via the System of Stochastic Differential Equations
 
 Official Code Repository for the paper [Score-based Generative Modeling of Graphs via the System of Stochastic Differential Equations](https://arxiv.org/abs/2202.02514) (ICML 2022).
@@ -94,12 +89,13 @@ CUDA_VISIBLE_DEVICES=${gpu_ids} python main.py --type train --config ${train_con
 for example, 
 
 ```sh
-CUDA_VISIBLE_DEVICES=0 python main.py --type train --config community_small --seed 42
+CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --type train --config community_small --seed 42
 ```
 and
 ```sh
 CUDA_VISIBLE_DEVICES=0,1 python main.py --type train --config zinc250k --seed 42
 ```
+CUDA_VISIBLE_DEVICES=3 python main.py --type train --config qm9 --seed 10
 
 ### 4. Generation and Evaluation
 

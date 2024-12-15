@@ -93,11 +93,16 @@ def dataloader(config, get_graph_list=False):
         test_idx = [int(i) for i in test_idx]
     
     train_idx = [i for i in range(len(mols)) if i not in test_idx]
-    print(f'Number of training mols: {len(train_idx)} | Number of test mols: {len(test_idx)}')
-
+    
     train_mols = [mols[i] for i in train_idx]
-    test_mols = [mols[i] for i in test_idx]
+    test_mols = []
+    for  i in test_idx:
+        if i < len(mols):
+            test_mols.append(mols[i])
+            
+    print(f'Number of training mols: {len(train_mols)} | Number of test mols: {len(test_mols)}')
 
+    
     train_dataset = MolDataset(train_mols, get_transform_fn(config.data.data))
     test_dataset = MolDataset(test_mols, get_transform_fn(config.data.data))
 

@@ -1,6 +1,3 @@
-PygHO
-data
-.gitignore
 # 
 *.pyc
 logs_sample/

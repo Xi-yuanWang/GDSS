@@ -8,7 +8,6 @@ sys.path.insert(0, os.getcwd())
 import argparse
 from utils.mol_utils import mols_to_nx, smiles_to_mols
 
-
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset', type=str, default='ZINC250k', choices=['ZINC250k', 'QM9'])
 args = parser.parse_args()
@@ -28,8 +27,12 @@ elif dataset == 'ZINC250k':
 else:
     raise ValueError(f"[ERROR] Unexpected value data_name={dataset}")
 
-smiles = pd.read_csv(f'data/{dataset.lower()}.csv')[col]
-test_smiles = [smiles.iloc[i] for i in test_idx]
+smiles = pd.read_csv(f'data/pre_{dataset.lower()}.csv')[col]
+test_smiles = []
+for i in test_idx:
+    if i < len(smiles):
+        test_smiles.append(smiles.iloc[i])
+
 nx_graphs = mols_to_nx(smiles_to_mols(test_smiles))
 print(f'Converted the test molecules into {len(nx_graphs)} graphs')
 
