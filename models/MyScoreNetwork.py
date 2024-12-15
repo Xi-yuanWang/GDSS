@@ -2,11 +2,11 @@ from utils.graph_utils import mask_adjs, pow_tensor
 from models.layers import MLP
 import torch.nn as nn
 import torch
-from typing import Callable
-from typing_extensions import Final
+from typing_extensions import Callable, Final
 from PygHO.pygho.honn.Conv import NGNNConv, GNNAKConv, DSSGNNConv, SSWLConv, SUNConv, PPGNConv, I2Conv, IGN2Conv
 from PygHO.pygho.backend.MaTensor import MaskedTensor
 
+gnn_str = "PPGN"
 def transfermlpparam(mlp: dict):
     mlp = mlp.copy()
     mlp.update({"tailact": True, "numlayer": 2, "norm": "ln"})
@@ -33,7 +33,6 @@ maconvdict = {
     "2IGN":
     lambda dim, mlp: IGN2Conv(dim, dim, "sum", "D", transfermlpparam(mlp))
 }
-gnn_type = "SUN"
 
 class MaModel(nn.Module):
     residual: Final[bool]
@@ -72,13 +71,9 @@ class MyScoreNetwork(nn.Module):
 
         self.temb = nn.Sequential(nn.Linear(1, c_hid), nn.SiLU(inplace=True), nn.Linear(c_hid, c_hid), nn.SiLU(inplace=True))
 
-        self.gnn = MaModel(maconvdict[gnn_type], num_layers, c_hid, residual=True)
-        print(gnn_type)
-        self.final = nn.Sequential(nn.Linear(c_hid, c_hid), 
-                                   nn.SiLU(inplace=True), 
-                                   nn.Linear(c_hid, c_hid),
-                                   nn.SiLU(inplace=True), 
-                                   nn.Linear(c_hid, 1))
+        self.gnn = MaModel(maconvdict[gnn_str], num_layers, c_hid, residual=True)
+        print(gnn_str)
+        self.final = nn.Sequential(nn.Linear(c_hid, c_hid), nn.SiLU(inplace=True), nn.Linear(c_hid, c_hid), nn.SiLU(inplace=True), nn.Linear(c_hid, 1))
 
 
     def forward(self, x, adj, flags, t):

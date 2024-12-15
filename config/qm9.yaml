@@ -23,9 +23,9 @@ model:
   adj: MyScoreNetwork
   conv: GCN
   num_heads: 4
-  depth: 3
+  depth: 5
   adim: 32
-  nhid: 32
+  nhid: 64
   num_layers: 5
   num_linears: 2
   c_init: 2

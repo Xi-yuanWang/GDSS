@@ -29,7 +29,7 @@ class ScoreNetworkX(torch.nn.Module):
 
         self.activation = torch.tanh
 
-    def forward(self, x, adj, flags):
+    def forward(self, x, adj, flags, t):
 
         x_list = [x]
         for _ in range(self.depth):
@@ -72,7 +72,7 @@ class ScoreNetworkX_GMH(torch.nn.Module):
 
         self.activation = torch.tanh
 
-    def forward(self, x, adj, flags):
+    def forward(self, x, adj, flags, t):
         adjc = pow_tensor(adj, self.c_init)
 
         x_list = [x]

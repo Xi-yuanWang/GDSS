@@ -64,12 +64,7 @@ class Trainer(object):
                 loss_x, loss_adj = self.loss_fn(self.model_x, self.model_adj, *loss_subject)
                 loss_x.backward()
                 loss_adj.backward()
-
-<<<<<<< HEAD
                 #print(loss_adj.item(), flush=True)
-
-=======
->>>>>>> parent of a222283... new_scorer
                 torch.nn.utils.clip_grad_norm_(self.model_x.parameters(), self.config.train.grad_norm)
                 torch.nn.utils.clip_grad_norm_(self.model_adj.parameters(), self.config.train.grad_norm)
 
